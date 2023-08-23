@@ -1,22 +1,23 @@
 import numpy as np
 from ModulesDetMax import *
 import gc
-def MaxIntCentroids(SignalsMat,AdjacencyMatrix,Fragment=1,KernelIDs=[],features=0,FeaturesNumber=500,MinSignals=3,MinIntKernel=3e4,MaxDeep=3):        
+def MaxIntCentroids(Spectrum,AdjacencyMatrix,KernelIDs=[],features=0,FeaturesNumber=500,MinSignals=3,MinIntKernel=3e4,MaxDeep=3):        
     MaxInt=MinIntKernel*1.5
+    VisitVector=np.zeros(len(AdjacencyMatrix))
     while features<FeaturesNumber and MaxInt>MinIntKernel:
-        MaxInt=np.max(SignalsMat[:,4+Fragment])
-        Loc=np.where(SignalsMat[:,4+Fragment]==MaxInt)[0][0]
-        Module=ModulesDetMax(MaxID=Loc,AdjacencyMatrix=AdjacencyMatrix,Module=[Loc],MaxDeep=MaxDeep)       
+        MaxInt=np.max(Spectrum[:,1])
+        Loc=np.where(Spectrum[:,1]==MaxInt)[0][0]
+        Module=ModulesDetMax(MaxID=Loc,AdjacencyMatrix=AdjacencyMatrix,VisitVector=VisitVector,Module=[Loc],MaxDeep=MaxDeep)       
         del Loc
-        if len(Module)>MinSignals:
-            KernelIDs.append(list(set(Module)))
+        CleanModule=list(set(Module))
+        if len(CleanModule)>MinSignals:
+            KernelIDs.append(CleanModule)
             features+=1
-        SignalsMat[Module,5]=0
-        SignalsMat[Module,6]=0
+        Spectrum[Module,1]=0
         del Module
         gc.collect()
     del MaxInt     
     gc.collect()
     if features==FeaturesNumber:
         print('There are more features')
-    return features
+    return KernelIDs
