@@ -1,10 +1,9 @@
-from ClusterStats import *
-import pandas as pd
-def RawKernel(SignalsMat,KernelIDs,alpha=0.01):    
+from SignalsStats import *
+def RawKernel(Signals,KernelIDs,alpha=0.01,minr2=0.5):    
     Kernel=[]
-    counter=0
     for cent in KernelIDs:
-        Kernel.append(SignalsStats(SignalsMat[cent,:],Isotopomer=0,alpha=alpha))        
-        counter+=1
+        signalsStats=SignalsStats(Signals[cent,:],alpha=alpha)
+        if signalsStats[8]<0 and signalsStats[9]>minr2:
+            Kernel.append(signalsStats[:8])        
     KernelArray=np.array(Kernel)
     return KernelArray
